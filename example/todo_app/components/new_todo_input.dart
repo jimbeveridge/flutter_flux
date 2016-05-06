@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-library w_flux.example.todo_app.components.new_todo_input;
-
 import 'package:react/react.dart' as react;
 
 var NewTodoInput = react.registerComponent(() => new _NewTodoInput());

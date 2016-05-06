@@ -13,11 +13,10 @@
 // limitations under the License.
 
 @TestOn('vm')
-library w_flux.test.action_test;
 
 import 'dart:async';
 
-import 'package:w_flux/src/action.dart';
+import 'package:flutter_flux/src/action.dart';
 import 'package:test/test.dart';
 
 void main() {

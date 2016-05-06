@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-library w_flux.example.random_color;
-
 import 'dart:html';
 import 'dart:math';
 
 import 'package:react/react.dart' as react;
 import 'package:react/react_client.dart' as react_client;
 
-import 'package:w_flux/w_flux.dart';
+import 'package:flutter_flux/flux.dart';
 
 main() async {
   // initialize action, stores, and components

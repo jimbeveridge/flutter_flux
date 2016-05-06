@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-library w_flux.action;
-
 import 'dart:async';
 
 /// A command that can be dispatched and listened to.

@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-library w_flux.store;
-
 import 'dart:async';
 
-import 'package:w_flux/src/action.dart';
+import 'package:flutter_flux/src/action.dart';
 
 /// A `Store` is a repository and manager of app state. This class should be
 /// extended to fit the needs of your application and its data. The number and

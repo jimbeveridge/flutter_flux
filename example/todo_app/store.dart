@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-library w_flux.example.todo_app.store;
-
-import 'package:w_flux/w_flux.dart';
+import 'package:flutter_flux/flux.dart';
 
 import 'actions.dart';
 

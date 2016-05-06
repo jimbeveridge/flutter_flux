@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-library w_flux.example.todo_app.components.todo_list_item;
-
 import 'package:react/react.dart' as react;
 
 import '../store.dart';

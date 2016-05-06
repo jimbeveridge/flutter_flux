@@ -19,9 +19,6 @@
 /// - Data mutations within [Store]s trigger re-rendering of app view (defined
 ///   in [FluxComponent]s).
 /// - [FluxComponent]s dispatch [Action]s in response to user interaction.
-library w_flux;
 
 export 'src/action.dart';
-export 'src/component.dart';
 export 'src/store.dart';
-export 'src/mixins/batched_redraws.dart';
