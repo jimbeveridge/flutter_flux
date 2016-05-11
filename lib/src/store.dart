@@ -78,12 +78,17 @@ class Store {
   ///
   /// If [onAction] is provided, it will be called every time [action] is
   /// dispatched. If [onAction] returns a [Future], [trigger] will not be
-  /// called until that future has resolved.
-  triggerOnAction(Action action, [void onAction(payload)]) {
+  /// called until that future has resolved and the function returns either
+  /// void (null) or true.
+  triggerOnAction(Action action, [dynamic onAction(payload)]) {
     if (onAction != null) {
       action.listen((payload) async {
-        await onAction(payload);
-        trigger();
+        var wasChanged = await onAction(payload);
+        // Action functions must return void or bool, or a Future of one of those.
+        assert(wasChanged == null || wasChanged.runtimeType == bool);
+        if (wasChanged == null || wasChanged == true) {
+          trigger();
+        }
       });
     } else {
       action.listen((_) {
