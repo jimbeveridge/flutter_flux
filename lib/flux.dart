@@ -22,3 +22,4 @@
 
 export 'src/action.dart';
 export 'src/store.dart';
+export 'src/store_watcher.dart';
