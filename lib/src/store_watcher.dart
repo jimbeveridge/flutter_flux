@@ -5,7 +5,7 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_flux/flux.dart';
+import 'package:flutter_flux/src/store.dart';
 
 /// ```dart
 /// Widget build(BuildContext context) {
