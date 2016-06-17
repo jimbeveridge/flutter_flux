@@ -1,4 +1,4 @@
-# f_flux
+# flutter_flux
 
 > A Dart app architecture library with uni-directional data flow inspired by [RefluxJS](https://github.com/reflux/refluxjs) and Facebook's [Flux](https://facebook.github.io/flux/).
 
@@ -9,16 +9,15 @@
   - [**FluxComponent**](#fluxcomponent)
 - [**Examples**](#examples)
 - [**External Consumption**](#external-consumption)
-- [**Development**](#development)
 
 ---
 
 ## Overview
 
-![flux-diagram](https://github.com/Workiva/f_flux/blob/images/images/flux_diagram.png)
+![flux-diagram](https://github.com/Workiva/w_flux/blob/images/images/flux_diagram.png)
 
-`f_flux` implements a uni-directional data flow pattern comprised of `Actions`, `Stores`, and `FluxComponents`.
-It is based on f_flux, but modified to remove all dependencies on React and related JavaScript packages.
+`flutter_flux` implements a uni-directional data flow pattern comprised of `Actions`, `Stores`, and `FluxComponents`.
+It is based on [w_flux](https://github.com/Workiva/w_flux), but modified to use Flutter instead of React.
 
 - `Actions` initiate mutation of app data that resides in `Stores`.
 - Data mutations within `Stores` trigger re-rendering of app view (defined in `FluxComponents`).
@@ -34,12 +33,12 @@ It is based on f_flux, but modified to remove all dependencies on React and rela
 
 An `Action` is a command that can be dispatched (with an optional data payload) and listened to.
 
-In `f_flux`, `Actions` are the sole driver of application state change. `FluxComponents` dispatch `Actions` in response to
+In `flutter_flux`, `Actions` are the sole driver of application state change. `FluxComponents` dispatch `Actions` in response to 
 user interaction with the rendered view. `Stores` listen for these `Action` dispatches and mutate their internal data in
 response, taking the `Action` payload into account as appropriate.
 
 ```dart
-import 'package:f_flux/f_flux.dart';
+import 'package:flutter_flux/flutter_flux.dart';
 
 // define an action
 final Action<String> displayString = new Action<String>();
@@ -63,7 +62,7 @@ use this feature within normal app code, but it is quite useful in unit test cod
 
 ### Store
 
-A `Store` is a repository and manager of app state. The base `Store` class provided by `f_flux` should be extended to fit
+A `Store` is a repository and manager of app state. The base `Store` class provided by `flutter_flux` should be extended to fit
 the needs of your app and its data. App state may be spread across many independent stores depending on the complexity
 of the app and your desired app architecture.
 
@@ -72,11 +71,11 @@ response to `Action` dispatches. `Stores` should otherwise be considered read-on
 via getter methods.  This limited data access ensures that the integrity of the uni-directional data flow is maintained.
 
 A `Store` can be listened to to receive external notification of its data mutations. Whenever the data within a `Store`
-is mutated, the `trigger` method is used to notify any registered listeners that updated data is available.  In `f_flux`,
+is mutated, the `trigger` method is used to notify any registered listeners that updated data is available.  In `flutter_flux`,
 `FluxComponents` listen to `Stores`, typically triggering re-rendering of UI elements based on the updated `Store` data.
 
 ```dart
-import 'package:f_flux/f_flux.dart';
+import 'package:flutter_flux/flutter_flux.dart';
 
 class RandomColorStore extends Store {
 
@@ -107,7 +106,7 @@ This can be useful for throttling UI rendering in response to high frequency `St
 
 ```dart
 import 'package:rate_limit/rate_limit.dart';
-import 'package:f_flux/f_flux.dart';
+import 'package:flutter_flux/flutter_flux.dart';
 
 class ThrottledStore extends Store {
   ...
@@ -138,7 +137,7 @@ triggerOnAction(actions.incrementCounter, (payload) => counter += payload);
 
 ## Examples
 
-Simple examples of `f_flux` usage can be found in the `example` directory. The example [README](example/README.md)
+Simple examples of `flutter_flux` usage can be found in the `example` directory. The example [README](example/README.md)
 includes instructions for building / running them.
 
 
@@ -146,7 +145,7 @@ includes instructions for building / running them.
 
 ## External Consumption
 
-`f_flux` implements a uni-directional data flow within an isolated application or code module. If `f_flux` is used as the
+`flutter_flux` implements a uni-directional data flow within an isolated application or code module. If `flutter_flux` is used as the
 internal architecture of a library, this internal data flow should be considered when defining the external API.
 
 - External API methods intended to mutate internal state should dispatch `Actions`, just like any internal user interaction.
@@ -154,14 +153,3 @@ internal architecture of a library, this internal data flow should be considered
 - External API streams intended to notify the consumer about internal state changes should be dispatched from the
 internal `Stores`, similar to their `triggers`.
 
-[w_module](https://github.com/Workiva/w_module) is a Dart library that defines a standard code module API that can be
-used seamlessly with `f_flux` internals to satisfy the above recommendations (complete with examples).
-
----
-
-## Development
-
-This project leverages [the dart_dev package](https://github.com/Workiva/dart_dev)
-for most of its tooling needs, including static analysis, code formatting,
-running tests, collecting coverage, and serving examples. Check out the dart_dev
-readme for more information.
