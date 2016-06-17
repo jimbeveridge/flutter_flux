@@ -13,11 +13,11 @@
 // limitations under the License.
 
 @TestOn('vm')
-
 import 'dart:async';
 
 import 'package:flutter_flux/src/action.dart';
 import 'package:flutter_flux/src/store.dart';
+import 'package:rate_limit/rate_limit.dart';
 import 'package:test/test.dart';
 
 import 'utils.dart';
@@ -25,13 +25,20 @@ import 'utils.dart';
 void main() {
   group('Store', () {
     Store store;
+    Action action;
 
     setUp(() {
       store = new Store();
+      action = new Action();
+    });
+
+    tearDown(() {
+      action.clearListeners();
+      store.dispose();
     });
 
     test('should trigger with itself as the payload', () async {
-      Completer c = new Completer();
+      final c = new Completer();
       store.listen((Store payload) {
         expect(payload, equals(store));
         c.complete();
@@ -63,58 +70,86 @@ void main() {
     });
 
     test('should trigger in response to an action', () {
-      Action _action = new Action();
-      store.triggerOnAction(_action);
-      store.listen((Store payload) => expectAsync((payload) {
-            expect(payload, equals(store));
-          }));
-      _action();
+      store.triggerOnAction(action);
+      store.listen(expectAsync((payload) {
+        expect(payload, equals(store));
+      }));
+      return action();
     });
 
     test(
         'should execute a given method and then trigger in response to an action',
-        () {
-      Action _action = new Action();
-      bool methodCalled = false;
-      syncCallback(_) {
-        methodCalled = true;
+        () async {
+      bool wasTriggered = false;
+      onAction(_) {
+        wasTriggered = true;
       }
-      store.triggerOnAction(_action, syncCallback);
-      store.listen((Store payload) => expectAsync((payload) {
-            expect(payload, equals(store));
-            expect(methodCalled, equals(true));
-          }));
-      _action();
+      store.triggerOnAction(action, onAction);
+      store.listen(expectAsync((Store payload) {
+        expect(payload, equals(store));
+        expect(wasTriggered, isTrue);
+      }));
+      return action().then((_) {
+        expect(wasTriggered, isTrue);
+      });
+    });
+
+    test(
+        'should execute a given method and then trigger in response to a conditional action',
+        () {
+      bool wasTriggered = false;
+      onAction(_) {
+        wasTriggered = true;
+        return true;
+      }
+      store.triggerOnConditionalAction(action, onAction);
+      store.listen(expectAsync((payload) {
+        expect(payload, equals(store));
+        expect(wasTriggered, isTrue);
+      }));
+      return action().then((_) {
+        expect(wasTriggered, isTrue);
+      });
+    });
+
+    test(
+        'should execute a given method but NOT trigger in response to a conditional action',
+        () {
+      onAction(_) => false;
+      store.triggerOnConditionalAction(action, onAction);
+      store.listen((payload) {
+        fail('Event should not have been triggered');
+      });
+      return action();
     });
 
     test(
         'should execute a given async method and then trigger in response to an action',
         () {
-      Action _action = new Action();
       bool afterTimer = false;
       asyncCallback(_) async {
         await new Future.delayed(new Duration(milliseconds: 30));
         afterTimer = true;
       }
-      store.triggerOnAction(_action, asyncCallback);
-      store.listen((Store payload) => expectAsync((payload) {
-            expect(payload, equals(store));
-            expect(afterTimer, equals(true));
-          }));
-      _action();
+      store.triggerOnAction(action, asyncCallback);
+      store.listen(expectAsync((payload) {
+        expect(payload, equals(store));
+        expect(afterTimer, isTrue);
+      }));
+      return action();
     });
 
     test(
         'should execute a given method and then trigger in response to an action with payload',
         () {
-      Action<num> _action = new Action<num>();
+      final _action = new Action<num>();
       num counter = 0;
       store.triggerOnAction(_action, (payload) => counter = payload);
-      store.listen((Store payload) => expectAsync((payload) {
-            expect(payload, equals(store));
-            expect(counter, equals(17));
-          }));
-      _action(17);
+      store.listen(expectAsync((payload) {
+        expect(payload, equals(store));
+        expect(counter, equals(17));
+      }));
+      return _action(17);
     });
   });
 }

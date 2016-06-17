@@ -46,6 +46,10 @@ class Store {
     _stream = _streamController.stream.asBroadcastStream();
   }
 
+  void dispose() {
+    _streamController.close();
+  }
+
   /// Construct a new [Store] instance with a transformer.
   ///
   /// The standard behavior of the "trigger" stream will be modified. The
@@ -83,18 +87,34 @@ class Store {
   triggerOnAction(Action action, [dynamic onAction(payload)]) {
     if (onAction != null) {
       action.listen((payload) async {
-        var wasChanged = await onAction(payload);
-        // Action functions must return void or bool, or a Future of one of those.
-        assert(wasChanged == null || wasChanged.runtimeType == bool);
-        if (wasChanged == null || wasChanged == true) {
-          trigger();
-        }
+        await onAction(payload);
+        trigger();
       });
     } else {
       action.listen((_) {
         trigger();
       });
     }
+  }
+
+  /// A convenience method for listening to an [action] and triggering
+  /// automatically once the callback returns true when it completes.
+  ///
+  /// [onAction] will be called every time [action] is dispatched.
+  /// If [onAction] returns a [Future], [trigger] will not be
+  /// called until that future has resolved and the function returns either
+  /// void (null) or true.
+  triggerOnConditionalAction(Action action, bool onAction(payload)) {
+    assert(action != null);
+    action.listen((payload) async {
+      var wasChanged = await onAction(payload);
+      // Action functions must return bool, or a Future of one of
+      // those.
+      assert(wasChanged is bool);
+      if (wasChanged == true) {
+        trigger();
+      }
+    });
   }
 
   /// Adds a subscription to this `Store`.
