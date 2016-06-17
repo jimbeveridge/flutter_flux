@@ -1,3 +1,4 @@
+.atom/
 .idea/
 
 # dart
@@ -5,6 +6,9 @@
 .pub
 packages
 pubspec.lock
+
+# flutter
+build/
 
 # docs
 dartdoc-viewer/
