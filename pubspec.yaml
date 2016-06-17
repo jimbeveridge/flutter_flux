@@ -11,10 +11,12 @@ authors:
   - Trent Grover <trent.grover@workiva.com>
   - Jim Beveridge <jimbe@google.com>
 homepage: https://github.com/jimbeveridge/flutter_flux
-dependencies:
+dev_dependencies:
+  # flutter must be a dev_dependency, otherwise pub gives this error message:
+  # Invalid description: "../flutter/packages/flutter" is a relative path,
+  # but this isn't a local pubspec.
   flutter:
     path: ../flutter/packages/flutter
-dev_dependencies:
   coverage: "^0.7.2"
   dart_dev: "^1.0.0"
   dart_style: "^0.2.0"
