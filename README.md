@@ -16,12 +16,12 @@
 
 ![flux-diagram](https://github.com/Workiva/w_flux/blob/images/images/flux_diagram.png)
 
-`flutter_flux` implements a uni-directional data flow pattern comprised of `Actions`, `Stores`, and `FluxComponents`.
+`flutter_flux` implements a uni-directional data flow pattern comprised of `Actions`, `Stores`, and `StoreWatchers`.
 It is based on [w_flux](https://github.com/Workiva/w_flux), but modified to use Flutter instead of React.
 
 - `Actions` initiate mutation of app data that resides in `Stores`.
-- Data mutations within `Stores` trigger re-rendering of app view (defined in `FluxComponents`).
-- `FluxComponents` dispatch `Actions` in response to user interaction.
+- Data mutations within `Stores` trigger re-rendering of app view (defined in `StoreWatcher`).
+- Flutter `Widgets` and other interaction sources dispatch `Actions` in response to user interaction.
 - and the cycle continues...
 
 ---
@@ -33,7 +33,7 @@ It is based on [w_flux](https://github.com/Workiva/w_flux), but modified to use 
 
 An `Action` is a command that can be dispatched (with an optional data payload) and listened to.
 
-In `flutter_flux`, `Actions` are the sole driver of application state change. `FluxComponents` dispatch `Actions` in response to 
+In `flutter_flux`, `Actions` are the sole driver of application state change. Widgets and other objects dispatch `Actions` in response to 
 user interaction with the rendered view. `Stores` listen for these `Action` dispatches and mutate their internal data in
 response, taking the `Action` payload into account as appropriate.
 
@@ -72,7 +72,7 @@ via getter methods.  This limited data access ensures that the integrity of the 
 
 A `Store` can be listened to to receive external notification of its data mutations. Whenever the data within a `Store`
 is mutated, the `trigger` method is used to notify any registered listeners that updated data is available.  In `flutter_flux`,
-`FluxComponents` listen to `Stores`, typically triggering re-rendering of UI elements based on the updated `Store` data.
+`StoreWatchers` listen to `Stores`, typically triggering re-rendering of UI elements based on the updated `Store` data.
 
 ```dart
 import 'package:flutter_flux/flutter_flux.dart';
