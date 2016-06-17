@@ -1,0 +1,8 @@
+name: firechat_flutter
+description: A one-sided chat app using Flutter.
+dependencies:
+  flutter:
+    path: ../../../flutter/packages/flutter
+  flutter_flux:
+    path: ../..
+

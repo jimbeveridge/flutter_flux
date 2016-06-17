@@ -1,7 +1,12 @@
-w_flux Examples
+flutter_flux Example
 ================
 
-To run the examples, open the root of this repository in a command-line terminal.
+To run the example, follow the instructions at https://flutter.io for setting
+up a flutter environment and connecting your Android or iOS device.
 
-1. `pub run dart_dev examples`
-2. Open Chromium/Dartium to `http://localhost:8080`
+Then do this:
+
+1. cd chat_app
+1. `pub get`
+2. flutter run
+
