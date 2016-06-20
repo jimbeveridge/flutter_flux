@@ -32,6 +32,12 @@ abstract class StoreWatcher extends StatefulWidget {
   State createState() => new StoreWatcherState();
 }
 
+// If you get these errors from the analyzer, then you need to add a file
+// .analysis_options like you find in the root of this repo.
+// [error] The class 'StoreWatcherMixin' cannot be used as a mixin because it
+// extends a class other than Object.
+// [error] The class 'StoreWatcherMixin' cannot be used as a mixin because it
+// references 'super'
 class StoreWatcherState extends State<StoreWatcher> with StoreWatcherMixin {
   final Map<StoreToken, Store> _storeTokens = <StoreToken, Store>{};
 

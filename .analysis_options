@@ -1,7 +1,3 @@
 analyzer:
   language:
     enableSuperMixins: true
-  exclude:
-    - interfaces/**
-    - out/**
-    - third_party/**
