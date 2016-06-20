@@ -14,6 +14,8 @@
 
 import 'dart:async';
 
+typedef void OnData(dynamic event);
+
 /// A command that can be dispatched and listened to.
 ///
 /// An [Action] manages a collection of listeners and the manner of
@@ -40,11 +42,11 @@ import 'dart:async';
 /// action.
 ///
 class Action<T> implements Function {
-  List _listeners = [];
+  List<OnData> _listeners = <OnData>[];
 
   /// Dispatch this [Action] to all listeners. If a payload is supplied, it will
   /// be passed to each listener's callback, otherwise null will be passed.
-  Future call([T payload]) {
+  Future<List<dynamic>> call([T payload]) {
     // Invoke all listeners in a microtask to enable waiting on futures. The
     // microtask queue is emptied before the event loop continues. This ensures
     // synchronous listeners are invoked in the current tick of the event loop
@@ -56,35 +58,39 @@ class Action<T> implements Function {
     // a [Stream]-based action implementation. At smaller sample sizes this
     // implementation slows down in comparison, yielding average times of 0.1 ms
     // for stream-based actions vs. 0.14 ms for this action implementation.
-    return Future
-        .wait(_listeners.map((l) => new Future.microtask(() => l(payload))));
+    return Future.wait(_listeners
+        .map((OnData l) => new Future<dynamic>.microtask(() => l(payload))));
   }
 
   /// Cancel all subscriptions that exist on this [Action] as a result of
   /// [listen] being called. Useful when tearing down a flux cycle in some
   /// module or unit test.
-  void clearListeners() {
-    _listeners.clear();
-  }
+  void clearListeners() => _listeners.clear();
 
   /// Supply a callback that will be called any time this [Action] is
   /// dispatched. A payload of type [T] will be passed to the callback if
   /// supplied at dispatch time, otherwise null will be passed. Returns an
   /// [ActionSubscription] which provides means to cancel the subscription.
-  ActionSubscription listen(void onData(T event)) {
+  ActionSubscription listen(OnData onData) {
     _listeners.add(onData);
     return new ActionSubscription(() => _listeners.remove(onData));
   }
 
-  /// Actions are only deemed equivalent if they are the exact same Object
+  /// Actions are only deemed equivalent if they are the exactly the same Object
+  @override
   bool operator ==(Object other) {
     return identical(this, other);
   }
+
+  @override
+  int get hashCode => identityHashCode(this);
 }
+
+typedef void _OnCancel();
 
 /// A subscription used to cancel registered listeners to an [Action].
 class ActionSubscription {
-  final Function _onCancel;
+  final _OnCancel _onCancel;
 
   ActionSubscription(this._onCancel);
 

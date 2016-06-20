@@ -18,21 +18,22 @@ void main() {
 class ChatScreen extends StoreWatcher {
   ChatScreen({Key key}) : super(key: key);
 
+  @override
   void initState(ListenToStore listenToStore) {
     listenToStore(messageStoreToken);
     listenToStore(userStoreToken);
   }
 
-  Widget _buildTextComposer(
-      BuildContext context, MessageStore messageStore, UserStore userStore) {
-    final commitMessage = (_) {
+  Widget _buildTextComposer(BuildContext context, ChatMessageStore messageStore,
+      ChatUserStore userStore) {
+    final ValueChanged<InputValue> commitMessage = (InputValue _) {
       commitCurrentMessageAction(userStore.me);
     };
 
     ThemeData themeData = Theme.of(context);
     return new Row(children: <Widget>[
       new Flexible(child: new Input(
-          value: messageStore.CurrentMessage,
+          value: messageStore.currentMessage,
           hintText: 'Enter message',
           onSubmitted: commitMessage,
           onChanged: setCurrentMessageAction)),
@@ -48,9 +49,10 @@ class ChatScreen extends StoreWatcher {
     ]);
   }
 
+  @override
   Widget build(BuildContext context, Map<StoreToken, Store> stores) {
-    final messageStore = stores[messageStoreToken];
-    final chatUserStore = stores[userStoreToken];
+    final ChatMessageStore messageStore = stores[messageStoreToken];
+    final ChatUserStore chatUserStore = stores[userStoreToken];
 
     return new Scaffold(
         appBar:
@@ -60,7 +62,7 @@ class ChatScreen extends StoreWatcher {
               padding: new EdgeInsets.symmetric(horizontal: 8.0),
               scrollAnchor: ViewportAnchor.end,
               children: messageStore.messages
-                  .map((m) => new ChatMessageListItem(m))
+                  .map((ChatMessage m) => new ChatMessageListItem(m))
                   .toList())),
           _buildTextComposer(context, messageStore, chatUserStore),
         ]));
@@ -69,11 +71,12 @@ class ChatScreen extends StoreWatcher {
 
 class ChatMessageListItem extends StatefulWidget {
   ChatMessageListItem(ChatMessage m)
-      : super(key: new ObjectKey(m)),
-        message = m;
+      : message = m,
+        super(key: new ObjectKey(m));
 
   final ChatMessage message;
 
+  @override
   State createState() => new ChatMessageListItemState();
 }
 
@@ -86,10 +89,11 @@ class ChatMessageListItemState extends State<ChatMessageListItem> {
 
   AnimationController _animationController =
       new AnimationController(duration: new Duration(milliseconds: 700));
-  Animation _animation;
+  Animation<double> _animation;
 
+  @override
   Widget build(BuildContext context) {
-    final message = config.message;
+    final ChatMessage message = config.message;
     return new SizeTransition(
         sizeFactor: _animation,
         axisAlignment: 0.0,

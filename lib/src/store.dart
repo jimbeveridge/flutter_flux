@@ -34,20 +34,10 @@ import 'package:flutter_flux/src/action.dart';
 /// `Store`s, triggering re-rendering of the UI elements based on the updated
 /// `Store` data.
 class Store {
-  /// Stream controller for [_stream]. Used by [trigger].
-  StreamController<Store> _streamController;
-
-  /// Broadcast stream of "data updated" events. Listened to in [listen].
-  Stream<Store> _stream;
-
   /// Construct a new [Store] instance.
   Store() {
     _streamController = new StreamController<Store>();
     _stream = _streamController.stream.asBroadcastStream();
-  }
-
-  void dispose() {
-    _streamController.close();
   }
 
   /// Construct a new [Store] instance with a transformer.
@@ -62,9 +52,18 @@ class Store {
     _streamController = new StreamController<Store>();
 
     // apply a transform to the stream if supplied
-    _stream = _streamController.stream
-        .transform(transformer as StreamTransformer<Store, dynamic>)
-        .asBroadcastStream() as Stream<Store>;
+    _stream =
+        _streamController.stream.transform(transformer).asBroadcastStream();
+  }
+
+  /// Stream controller for [_stream]. Used by [trigger].
+  StreamController<Store> _streamController;
+
+  /// Broadcast stream of "data updated" events. Listened to in [listen].
+  Stream<Store> _stream;
+
+  void dispose() {
+    _streamController.close();
   }
 
   /// Trigger a "data updated" event. All registered listeners of this `Store`
@@ -84,14 +83,15 @@ class Store {
   /// dispatched. If [onAction] returns a [Future], [trigger] will not be
   /// called until that future has resolved and the function returns either
   /// void (null) or true.
-  triggerOnAction(Action action, [dynamic onAction(payload)]) {
+  void triggerOnAction(Action<dynamic> action,
+      [dynamic onAction(dynamic payload)]) {
     if (onAction != null) {
-      action.listen((payload) async {
+      action.listen((dynamic payload) async {
         await onAction(payload);
         trigger();
       });
     } else {
-      action.listen((_) {
+      action.listen((dynamic _) {
         trigger();
       });
     }
@@ -104,13 +104,18 @@ class Store {
   /// If [onAction] returns a [Future], [trigger] will not be
   /// called until that future has resolved and the function returns either
   /// void (null) or true.
-  triggerOnConditionalAction(Action action, bool onAction(payload)) {
+  void triggerOnConditionalAction(
+      Action<dynamic> action, bool onAction(dynamic payload)) {
     assert(action != null);
-    action.listen((payload) async {
-      var wasChanged = await onAction(payload);
-      // Action functions must return bool, or a Future of one of
-      // those.
-      assert(wasChanged is bool);
+    action.listen((dynamic payload) async {
+      // Action functions must return bool, or a Future<bool>.
+      dynamic result = onAction(payload);
+      bool wasChanged;
+      if (result is Future) {
+        wasChanged = await result;
+      } else {
+        wasChanged = result;
+      }
       if (wasChanged == true) {
         trigger();
       }

@@ -17,6 +17,7 @@ import 'dart:async';
 
 import 'package:flutter_flux/src/action.dart';
 import 'package:flutter_flux/src/store.dart';
+import 'package:quiver/testing/async.dart';
 import 'package:rate_limit/rate_limit.dart';
 import 'package:test/test.dart';
 
@@ -25,11 +26,11 @@ import 'utils.dart';
 void main() {
   group('Store', () {
     Store store;
-    Action action;
+    Action<Null> action;
 
     setUp(() {
       store = new Store();
-      action = new Action();
+      action = new Action<Null>();
     });
 
     tearDown(() {
@@ -38,14 +39,11 @@ void main() {
     });
 
     test('should trigger with itself as the payload', () async {
-      final c = new Completer();
-      store.listen((Store payload) {
-        expect(payload, equals(store));
-        c.complete();
-      });
+      store.listen(expectAsync((Store listenedStore) {
+        expect(listenedStore, equals(store));
+      }));
 
       store.trigger();
-      return c.future;
     });
 
     test('should support stream transforms', () async {
@@ -55,9 +53,9 @@ void main() {
       // all others that occurred within the throttled duration)
       int count = 0;
       store = new Store.withTransformer(
-          new Throttler(const Duration(milliseconds: 30)));
-      store.listen((Store payload) {
-        count += 1;
+          new Throttler<Store>(const Duration(milliseconds: 30)));
+      store.listen((Store listenedStore) {
+        count++;
       });
 
       store.trigger();
@@ -71,82 +69,81 @@ void main() {
 
     test('should trigger in response to an action', () {
       store.triggerOnAction(action);
-      store.listen(expectAsync((payload) {
-        expect(payload, equals(store));
+      store.listen(expectAsync((Store listenedStore) {
+        expect(listenedStore, equals(store));
       }));
-      return action();
+      action();
     });
 
     test(
         'should execute a given method and then trigger in response to an action',
         () async {
       bool wasTriggered = false;
-      onAction(_) {
+      void onAction(Null _) {
         wasTriggered = true;
       }
       store.triggerOnAction(action, onAction);
-      store.listen(expectAsync((Store payload) {
-        expect(payload, equals(store));
+      store.listen(expectAsync((Store listenedStore) {
+        expect(listenedStore, equals(store));
         expect(wasTriggered, isTrue);
       }));
-      return action().then((_) {
-        expect(wasTriggered, isTrue);
-      });
+      action();
     });
 
     test(
         'should execute a given method and then trigger in response to a conditional action',
         () {
       bool wasTriggered = false;
-      onAction(_) {
+      bool onAction(Null _) {
         wasTriggered = true;
         return true;
       }
       store.triggerOnConditionalAction(action, onAction);
-      store.listen(expectAsync((payload) {
-        expect(payload, equals(store));
+      store.listen(expectAsync((Store listenedStore) {
+        expect(listenedStore, equals(store));
         expect(wasTriggered, isTrue);
       }));
-      return action().then((_) {
-        expect(wasTriggered, isTrue);
-      });
+      action();
     });
 
     test(
         'should execute a given method but NOT trigger in response to a conditional action',
         () {
-      onAction(_) => false;
-      store.triggerOnConditionalAction(action, onAction);
-      store.listen((payload) {
-        fail('Event should not have been triggered');
+      new FakeAsync().run((FakeAsync async) {
+        bool onAction(Null _) => false;
+        store.triggerOnConditionalAction(action, onAction);
+        store.listen((Store listenedStore) {
+          fail('Event should not have been triggered');
+        });
+        action();
+        async.flushMicrotasks();
       });
-      return action();
     });
 
     test(
         'should execute a given async method and then trigger in response to an action',
         () {
       bool afterTimer = false;
-      asyncCallback(_) async {
-        await new Future.delayed(new Duration(milliseconds: 30));
+      Future<Null> asyncCallback(Null _) async {
+        await new Future<Null>.delayed(new Duration(milliseconds: 30));
         afterTimer = true;
       }
       store.triggerOnAction(action, asyncCallback);
-      store.listen(expectAsync((payload) {
-        expect(payload, equals(store));
+      store.listen(expectAsync((Store listenedStore) {
+        expect(listenedStore, equals(store));
         expect(afterTimer, isTrue);
       }));
-      return action();
+      action();
     });
 
     test(
         'should execute a given method and then trigger in response to an action with payload',
         () {
-      final _action = new Action<num>();
-      num counter = 0;
-      store.triggerOnAction(_action, (payload) => counter = payload);
-      store.listen(expectAsync((payload) {
-        expect(payload, equals(store));
+      final Action<int> _action = new Action<int>();
+      int counter = 0;
+      store.triggerOnAction(_action, (int payload) => counter = payload);
+      store.listen(expectAsync((Store listenedStore) {
+        expect(listenedStore, equals(store));
         expect(counter, equals(17));
       }));
       return _action(17);

@@ -33,7 +33,10 @@ abstract class StoreWatcher extends StatefulWidget {
 }
 
 class StoreWatcherState extends State<StoreWatcher> with StoreWatcherMixin {
-  final _storeTokens = <StoreToken, Store>{};
+  final Map<StoreToken, Store> _storeTokens = <StoreToken, Store>{};
+
+  @override
+  void didUpdateConfig(StoreWatcher oldConfig) {}
 
   @override
   void initState() {
@@ -41,8 +44,9 @@ class StoreWatcherState extends State<StoreWatcher> with StoreWatcherMixin {
     super.initState();
   }
 
-  Store listenToStore(StoreToken token, [void onChangeEvent(Store payload)]) {
-    final store = super.listenToStore(token, onChangeEvent);
+  @override
+  Store listenToStore(StoreToken token, [void onChangeEvent(Store store)]) {
+    final Store store = super.listenToStore(token, onChangeEvent);
     _storeTokens[token] = store;
     return store;
   }
@@ -60,16 +64,18 @@ class StoreWatcherState extends State<StoreWatcher> with StoreWatcherMixin {
 /// }
 /// ```
 abstract class StoreWatcherMixin extends State {
-  final _streamSubscriptions = <Store, StreamSubscription<Store>>{};
+  final Map<Store, StreamSubscription<Store>> _streamSubscriptions =
+      <Store, StreamSubscription<Store>>{};
 
+  @override
   void setState(VoidCallback fn);
 
   /// Start receiving notifications from the given store, optionally routed
   /// to the given function. The default action is to call setState().
   /// In general, you want to use the default function, rebuild everything, and
   /// let Flutter figure out the delta of what changed.
-  Store listenToStore(StoreToken token, [void onChangeEvent(Store payload)]) {
-    final store = token._value;
+  Store listenToStore(StoreToken token, [void onChangeEvent(Store store)]) {
+    final Store store = token._value;
     _streamSubscriptions[store] =
         store.listen(onChangeEvent ?? _handleChangeEvent);
     return store;
@@ -84,9 +90,10 @@ abstract class StoreWatcherMixin extends State {
   Widget build(BuildContext context);
 
   void dipose() {
-    final subscriptions = _streamSubscriptions.values;
+    final Iterable<StreamSubscription<Store>> subscriptions =
+        _streamSubscriptions.values;
     _streamSubscriptions.clear();
-    for (final sub in subscriptions) {
+    for (final StreamSubscription<Store> sub in subscriptions) {
       sub.cancel();
     }
     super.dispose();

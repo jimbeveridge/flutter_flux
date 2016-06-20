@@ -19,29 +19,31 @@ class ChatMessage {
   final String text;
 }
 
-class MessageStore extends Store {
-  MessageStore() {
+class ChatMessageStore extends Store {
+  ChatMessageStore() {
     triggerOnAction(setCurrentMessageAction, (InputValue value) {
-      _CurrentMessage = value;
+      _currentMessage = value;
     });
     triggerOnAction(commitCurrentMessageAction, (ChatUser me) {
-      final message = new ChatMessage(sender: me, text: _CurrentMessage.text);
+      final ChatMessage message =
+          new ChatMessage(sender: me, text: _currentMessage.text);
       _messages.add(message);
-      _CurrentMessage = InputValue.empty;
+      _currentMessage = InputValue.empty;
     });
   }
 
-  final _messages = <ChatMessage>[];
-  InputValue _CurrentMessage = InputValue.empty;
+  final List<ChatMessage> _messages = <ChatMessage>[];
+  InputValue _currentMessage = InputValue.empty;
 
-  List<ChatMessage> get messages => new List.unmodifiable(_messages);
-  InputValue get CurrentMessage => _CurrentMessage;
+  List<ChatMessage> get messages =>
+      new List<ChatMessage>.unmodifiable(_messages);
+  InputValue get currentMessage => _currentMessage;
 
-  bool get isComposing => _CurrentMessage.text.isNotEmpty;
+  bool get isComposing => _currentMessage.text.isNotEmpty;
 }
 
-class UserStore extends Store {
-  UserStore() {
+class ChatUserStore extends Store {
+  ChatUserStore() {
     String name = "Guest${new Random().nextInt(1000)}";
     Color color =
         Colors.accents[new Random().nextInt(Colors.accents.length)][700];
@@ -53,8 +55,8 @@ class UserStore extends Store {
   ChatUser get me => _me;
 }
 
-final messageStoreToken = new StoreToken(new MessageStore());
-final userStoreToken = new StoreToken(new UserStore());
+final StoreToken messageStoreToken = new StoreToken(new ChatMessageStore());
+final StoreToken userStoreToken = new StoreToken(new ChatUserStore());
 
-final setCurrentMessageAction = new Action<InputValue>();
-final commitCurrentMessageAction = new Action<ChatUser>();
+final Action<InputValue> setCurrentMessageAction = new Action<InputValue>();
+final Action<ChatUser> commitCurrentMessageAction = new Action<ChatUser>();

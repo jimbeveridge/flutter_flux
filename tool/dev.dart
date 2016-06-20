@@ -14,17 +14,19 @@
 
 library tool.dev;
 
+import 'dart:async';
+
 import 'package:dart_dev/dart_dev.dart' show dev, config;
 
-main(List<String> args) async {
+Future<Null> main(List<String> args) async {
   // https://github.com/Workiva/dart_dev
 
   // Perform task configuration here as necessary.
-  List<String> dirs = ['example/', 'lib/', 'test/', 'tool/'];
+  List<String> dirs = <String>['example/', 'lib/', 'test/', 'tool/'];
   config.analyze.entryPoints = dirs;
   config.copyLicense.directories = dirs;
   config.format.directories = dirs;
-  config.test.platforms = ['vm', 'content-shell'];
+  config.test.platforms = <String>['vm', 'content-shell'];
 
   await dev(args);
 }
