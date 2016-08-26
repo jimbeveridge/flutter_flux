@@ -32,15 +32,16 @@ class ChatScreen extends StoreWatcher {
 
     ThemeData themeData = Theme.of(context);
     return new Row(children: <Widget>[
-      new Flexible(child: new Input(
-          value: messageStore.currentMessage,
-          hintText: 'Enter message',
-          onSubmitted: commitMessage,
-          onChanged: setCurrentMessageAction)),
+      new Flexible(
+          child: new Input(
+              value: messageStore.currentMessage,
+              hintText: 'Enter message',
+              onSubmitted: commitMessage,
+              onChanged: setCurrentMessageAction)),
       new Container(
           margin: new EdgeInsets.symmetric(horizontal: 4.0),
           child: new IconButton(
-              icon: Icons.send,
+              icon: new Icon(Icons.send),
               onPressed:
                   messageStore.isComposing ? () => commitMessage(null) : null,
               color: messageStore.isComposing
@@ -58,12 +59,13 @@ class ChatScreen extends StoreWatcher {
         appBar:
             new AppBar(title: new Text("Chatting as ${chatUserStore.me.name}")),
         body: new Column(children: <Widget>[
-          new Flexible(child: new Block(
-              padding: new EdgeInsets.symmetric(horizontal: 8.0),
-              scrollAnchor: ViewportAnchor.end,
-              children: messageStore.messages
-                  .map((ChatMessage m) => new ChatMessageListItem(m))
-                  .toList())),
+          new Flexible(
+              child: new Block(
+                  padding: new EdgeInsets.symmetric(horizontal: 8.0),
+                  scrollAnchor: ViewportAnchor.end,
+                  children: messageStore.messages
+                      .map((ChatMessage m) => new ChatMessageListItem(m))
+                      .toList())),
           _buildTextComposer(context, messageStore, chatUserStore),
         ]));
   }
