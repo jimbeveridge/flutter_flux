@@ -7,6 +7,5 @@ up a flutter environment and connecting your Android or iOS device.
 Then do this:
 
 1. cd chat_app
-1. `pub get`
 2. flutter run
 
