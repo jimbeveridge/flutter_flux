@@ -1,5 +1,7 @@
 # flutter_flux
 
+## The latest version of flutter_flux can be found at https://github.com/flutter/flutter_flux 
+
 > A Dart app architecture library with uni-directional data flow inspired by [RefluxJS](https://github.com/reflux/refluxjs) and Facebook's [Flux](https://facebook.github.io/flux/).
 
 - [**Overview**](#overview)
